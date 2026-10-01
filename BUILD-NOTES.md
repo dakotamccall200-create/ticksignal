@@ -42,3 +42,10 @@ Pure static HTML/CSS/JS. Zero build step, no frameworks, mobile-first. Open `ind
 6. **Fundraising gate**: founder approval → Open Collective / GitHub Sponsors ledger goes live; grant applications prepared.
 7. **Legal review**: disclaimer wording, photo-license consent flow (CC-BY), privacy audit before any real submission is accepted.
 8. **Pilot**: Michigan groups (admin permission only), 200+ real submissions, first real retrain; kill bar = real-photo accuracy <60% or zero expert volunteers.
+
+## Launch entry — 2026-10-01
+- Repo created: https://github.com/dakotamccall200-create/ticksignal (public, main branch)
+- GitHub Pages enabled → https://dakotamccall200-create.github.io/ticksignal/ (verified HTTP 200)
+- Launch edits: PRE-LAUNCH DEMO banners → PILOT banners (all SAMPLE/BASELINE/DEMO labels retained); funding page now links https://ko-fi.com/dakotamccall9 with required disclosure; tiers marked OPENING SOON; ledger $0.00 template.
+- Ko-fi page captured from his onboarding email: https://ko-fi.com/dakotamccall9 — account exists, page uncustomized, PayPal link unverified (his tap).
+- Interim home is the github.io URL; ticksignal.org domain still a Phase-2 step (name clearance pending).
