@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TickSignal — Is this tick dangerous? (demo)</title>
+<meta name="description" content="TickSignal demo: phone-photo tick & mosquito species ID research project. All data on this page is sample.">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — TickSignal just launched. Every number on this page is <strong>sample data</strong> until real community submissions arrive.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/>
+        <path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html" aria-current="page">Home</a>
+    <a href="submit.html">Submit</a>
+    <a href="map.html">Map</a>
+    <a href="dashboard.html">AI Dashboard</a>
+    <a href="report.html">Field Report</a>
+    <a href="results.html">Results</a>
+    <a href="learn.html">Learn</a>
+    <a href="faq.html">FAQ</a>
+    <a href="funding.html">Funding</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Is this tick <span class="q">dangerous?</span></h1>
+    <p class="lede">Snap a phone photo of the tick or mosquito. Our AI suggests the species in seconds, a human expert confirms it, and the sighting joins a public Michigan risk map. Every correction makes the AI smarter — and we publish the accuracy numbers, misses included.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="submit.html">📸 Submit a photo</a>
+      <a class="btn btn-ghost" href="map.html">View the risk map</a>
+    </div>
+  </section>
+
+  <section class="counters" aria-label="live counters">
+    <div class="counter">
+      <div class="num" id="c-photos">—</div>
+      <div class="lbl">photos ID'd</div>
+      <div><span class="tag">SAMPLE</span></div>
+    </div>
+    <div class="counter">
+      <div class="num" id="c-acc">—</div>
+      <div class="lbl">current AI accuracy</div>
+      <div><span class="tag">SAMPLE</span></div>
+    </div>
+    <div class="counter">
+      <div class="num" id="c-counties">—</div>
+      <div class="lbl">counties covered</div>
+      <div><span class="tag">SAMPLE</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <div class="step"><div class="n">1</div><div><strong>You photograph it.</strong> One phone photo, three taps — photo, location, done. EXIF data is stripped on intake and your location is coarsened to county before anything is stored.</div></div>
+    <div class="step"><div class="n">2</div><div><strong>The AI suggests a species.</strong> A top-3 guess with confidence in seconds. It's a suggestion, not a diagnosis — never medical advice.</div></div>
+    <div class="step"><div class="n">3</div><div><strong>A human expert confirms or corrects.</strong> Volunteer entomologists review the queue. Their corrections become training data.</div></div>
+    <div class="step"><div class="n">4</div><div><strong>The map updates, the AI retrains.</strong> Confirmed sightings land on the public county map. Every Friday the model retrains and the dashboard publishes the new accuracy — up or down.</div></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <h3>🎯 Why we publish our misses</h3>
+      <p>Most AI projects only advertise wins. TickSignal publishes the full confusion matrix — every species the AI confused for another — so the public can watch the model actually learn. <a href="dashboard.html">Watch the AI learn →</a></p>
+    </section>
+    <section class="card">
+      <h3>📰 This week's field report <span class="badge sample">SAMPLE</span></h3>
+      <p><strong>"Lone star ticks push north; blacklegged recall ticks up."</strong><br>
+      214 submissions, 2 new counties, blacklegged recall 88→89%. <a href="report.html">Read the report →</a></p>
+    </section>
+  </div>
+
+  <section class="card">
+    <h3>Honest status</h3>
+    <p>TickSignal is in <strong>pilot</strong>: the site is live, but there is no live AI classifier yet and no submission backend — the demo result and local-only storage are labeled where they appear. No money is being collected yet. Every figure is labeled <span class="badge sample">SAMPLE</span>, <span class="badge baseline">BASELINE</span>, or <span class="badge demo">DEMO</span> so you always know what you're looking at. See the <a href="faq.html#roadmap">public roadmap</a> for what launch still needs.</p>
+  </section>
+
+  <div class="disclaimer">
+    <strong>Not medical advice.</strong> TickSignal identifies species and shares public information only — it never diagnoses disease. If you were bitten, see a clinician. <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC tick info</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="links">
+    <a href="faq.html">FAQ</a><a href="about.html">About</a><a href="funding.html">Funding</a>
+    <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC: ticks</a><a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+  <p>Species identification only — <strong>this is not medical advice.</strong> If you were bitten, see a clinician.</p>
+  <p><small class="fine">TickSignal pilot v0.1.0 · all figures sample until real submissions arrive</small></p>
+</footer>
+
+<script src="assets/data.js"></script>
+<script>
+async function TS_loadData(){
+  try{ const r = await fetch('data/data.json',{cache:'no-store'}); if(r.ok) return await r.json(); }catch(e){}
+  return window.TICKSIGNAL_DATA || null;
+}
+TS_loadData().then(d=>{
+  if(!d) return;
+  document.getElementById('c-photos').textContent = d.counters.photosId.toLocaleString();
+  document.getElementById('c-acc').textContent = d.counters.aiAccuracy.toFixed(1) + '%';
+  document.getElementById('c-counties').textContent = d.counters.countiesCovered;
+});
+</script>
+</body>
+</html>

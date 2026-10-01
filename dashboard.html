@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Watch the AI learn — TickSignal</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — every number below is <strong>sample data</strong> showing the format. Real community numbers replace these as submissions arrive.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/><path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit</a>
+    <a href="map.html">Map</a>
+    <a href="dashboard.html" aria-current="page">AI Dashboard</a>
+    <a href="report.html">Field Report</a>
+    <a href="results.html">Results</a>
+    <a href="learn.html">Learn</a>
+    <a href="faq.html">FAQ</a>
+    <a href="funding.html">Funding</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Watch the AI learn <span class="badge sample">SAMPLE DATA</span></h1>
+  <p>Radical honesty is the brand: we publish the AI's real accuracy every week — including the weeks it gets worse. Below is the exact format, filled with sample data until launch.</p>
+
+  <section class="card">
+    <h2>Weekly accuracy — AI suggestion vs. expert confirmation <span class="badge sample">SAMPLE</span></h2>
+    <canvas class="chart" id="accChart" width="900" height="280" aria-label="sample weekly accuracy chart"></canvas>
+    <p class="hint" id="accNote"></p>
+  </section>
+
+  <section class="card">
+    <h2>Confusion matrix <span class="badge sample">SAMPLE</span></h2>
+    <p class="hint">Rows = expert-verified truth · Columns = what the AI suggested · Cells = % of the row. The diagonal is "got it right."</p>
+    <div class="table-wrap"><table id="confTable"></table></div>
+    <p class="hint">Reading it: the AI confuses lone star ticks for dog ticks 8% of the time — that's the current "photo drive" asking for 500 more lone-star photos.</p>
+  </section>
+
+  <section class="card">
+    <h2>Retraining log <span class="badge sample">SAMPLE</span></h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Model</th><th>Date</th><th>What changed</th><th>Accuracy</th><th>Status</th></tr></thead>
+      <tbody id="retrainBody"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>Data-quality notes <span class="badge sample">SAMPLE</span></h2>
+    <ul id="qualityList"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Expert reviewer credits</h2>
+    <p class="hint">Real people, real credentials — listed only after they agree. Current status (pilot):</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Role</th><th>Status</th></tr></thead>
+      <tbody id="reviewerBody"></tbody>
+    </table></div>
+  </section>
+
+  <div class="disclaimer">
+    <strong>This is not medical advice.</strong> Accuracy figures describe species identification for research mapping, never diagnosis. If you were bitten, see a clinician. <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC tick info</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="links">
+    <a href="faq.html">FAQ</a><a href="about.html">About</a><a href="funding.html">Funding</a>
+    <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC: ticks</a><a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+  <p>Species identification only — <strong>this is not medical advice.</strong> If you were bitten, see a clinician.</p>
+  <p><small class="fine">TickSignal pilot v0.1.0 · all figures sample until real submissions arrive</small></p>
+</footer>
+
+<script src="assets/data.js"></script>
+<script>
+async function init(){
+  let d=null;
+  try{ const r=await fetch('data/data.json',{cache:'no-store'}); if(r.ok) d=await r.json(); }catch(e){}
+  if(!d) d=window.TICKSIGNAL_DATA||null;
+  if(!d) return;
+
+  // --- canvas line chart (no libraries) ---
+  const cv=document.getElementById('accChart'), ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,pad={l:52,r:16,t:16,b:40};
+  const pts=d.weeklyAccuracy, min=60, max=90;
+  const X=i=>pad.l+(W-pad.l-pad.r)*i/(pts.length-1);
+  const Y=v=>pad.t+(H-pad.t-pad.b)*(1-(v-min)/(max-min));
+  ctx.fillStyle='#0f1a12'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#2c4433'; ctx.fillStyle='#a9bda9'; ctx.font='12px system-ui';
+  for(let v=min;v<=max;v+=5){ ctx.beginPath(); ctx.moveTo(pad.l,Y(v)); ctx.lineTo(W-pad.r,Y(v)); ctx.stroke();
+    ctx.fillText(v+'%',8,Y(v)+4); }
+  pts.forEach((p,i)=>ctx.fillText(p.week.split(' ')[0],X(i)-12,H-12));
+  ctx.strokeStyle='#7fd069'; ctx.lineWidth=3; ctx.beginPath();
+  pts.forEach((p,i)=>{ i?ctx.lineTo(X(i),Y(p.accuracy)):ctx.moveTo(X(0),Y(p.accuracy)); });
+  ctx.stroke();
+  pts.forEach((p,i)=>{ ctx.fillStyle='#ffc53d'; ctx.beginPath(); ctx.arc(X(i),Y(p.accuracy),5,0,7); ctx.fill();
+    ctx.fillStyle='#eef5ec'; ctx.fillText(p.accuracy.toFixed(1)+'%',X(i)-16,Y(p.accuracy)-12); ctx.fillStyle='#ffc53d'; });
+  document.getElementById('accNote').textContent='Sample trajectory: 71.5% → 84.2% over 8 weeks (n='+d.confusion.n+' expert-confirmed photos). Real chart goes live with the first real retrain.';
+
+  // --- confusion matrix ---
+  const t=document.getElementById('confTable'), cm=d.confusion, sp=d.species;
+  let html='<thead><tr><th>Actual \\ Predicted</th>'+sp.map(s=>'<th>'+s.name+'</th>').join('')+'</tr></thead><tbody>';
+  cm.rows.forEach(r=>{
+    html+='<tr><td><strong>'+r.actual+'</strong></td>';
+    sp.forEach(s=>{ const v=r[s.id]; const hot=(s.name===r.actual);
+      html+='<td style="'+(hot?'background:#123f22;font-weight:700':'')+(v>=7&&!hot?';color:#ffc53d':'')+'">'+v+'%</td>'; });
+    html+='</tr>'; });
+  html+='</tbody>'; t.innerHTML=html;
+
+  // --- retrain log ---
+  const rb=document.getElementById('retrainBody');
+  d.retrainLog.forEach(r=>{ const tr=document.createElement('tr');
+    const delta=r.before==null?'— (baseline)':(r.after-r.before).toFixed(1)+' pts';
+    tr.innerHTML='<td><span class="badge ai">'+r.model+'</span></td><td>'+r.date+'</td><td>'+r.change+'</td><td>'+(r.before==null?r.after.toFixed(1)+'%':r.before.toFixed(1)+'% → '+r.after.toFixed(1)+'% ('+delta+')')+'</td><td>'+r.status+'</td>';
+    rb.appendChild(tr); });
+
+  // --- quality notes ---
+  const ql=document.getElementById('qualityList');
+  d.dataQuality.forEach(q=>{ const li=document.createElement('li'); li.textContent=q; ql.appendChild(li); });
+
+  // --- reviewers ---
+  const vb=document.getElementById('reviewerBody');
+  d.reviewers.forEach(r=>{ const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+r.role+'</td><td><span class="badge sample">'+r.status.toUpperCase()+'</span></td>'; vb.appendChild(tr); });
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live risk map — TickSignal</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — baseline layer uses real CDC surveillance data; community pins are sample data until real submissions arrive. County-aggregated, no names.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/><path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit</a>
+    <a href="map.html" aria-current="page">Map</a>
+    <a href="dashboard.html">AI Dashboard</a>
+    <a href="report.html">Field Report</a>
+    <a href="results.html">Results</a>
+    <a href="learn.html">Learn</a>
+    <a href="faq.html">FAQ</a>
+    <a href="funding.html">Funding</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Live risk map <span class="badge baseline">BASELINE: REAL CDC DATA</span> <span class="badge sample">COMMUNITY: SAMPLE</span></h1>
+  <p class="hint">County-aggregated pins only — never precise locations, never names. Toggle the official surveillance baseline vs. community submissions from this project.</p>
+
+  <div class="map-controls">
+    <div class="toggle" role="tablist" aria-label="data source">
+      <button id="tBase" class="on" role="tab">Baseline (official data)</button>
+      <button id="tComm" role="tab">Community (this project)</button>
+    </div>
+    <label class="hint" style="margin:0">Species
+      <select id="species"><option value="all">All</option></select>
+    </label>
+    <label class="hint" style="margin:0">Through
+      <input type="range" id="month" min="0" max="4" value="4" step="1" style="width:140px;vertical-align:middle">
+      <span id="monthLbl">Sep 2026</span>
+    </label>
+  </div>
+
+  <div id="map" role="application" aria-label="sample tick risk map"></div>
+  <p class="hint" id="mapNote"></p>
+
+  <div class="table-wrap hidden" id="fallbackWrap">
+    <h3>Offline fallback — county table <span class="badge baseline">BASELINE REAL</span> <span class="badge sample">COMMUNITY SAMPLE</span></h3>
+    <table id="fallbackTable"><thead><tr><th>County</th><th>Baseline: 2023 reported cases (official)</th><th>Community reports (sample)</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <section class="card">
+    <h3>How to read this map</h3>
+    <ul>
+      <li><span class="badge baseline">BASELINE</span> pins show <strong>real</strong> 2023 CDC surveillance data: reported Lyme cases (confirmed + probable) per county. <small>Source: CDC NNDSS county-level public-use data, public domain · <a href="data/BASELINE-SOURCES.md">full sources &amp; caveats</a></small></li>
+      <li><span class="badge verified">COMMUNITY</span> pins show expert-confirmed submissions to this project (sample demo data).</li>
+      <li>The time slider accumulates sample community reports through the selected month. Species filter isolates one vector.</li>
+      <li>A county with no pins means <strong>no data</strong>, not no risk. That's the point — <a href="submit.html">send a photo</a>.</li>
+    </ul>
+  </section>
+
+  <div class="disclaimer">
+    <strong>This is not medical advice.</strong> The baseline layer is surveillance context (reported case counts, not personal risk); community pins are sample demo data. If you were bitten, see a clinician. <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC tick info</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="links">
+    <a href="faq.html">FAQ</a><a href="about.html">About</a><a href="funding.html">Funding</a>
+    <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC: ticks</a><a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+  <p>Species identification only — <strong>this is not medical advice.</strong> If you were bitten, see a clinician.</p>
+  <p><small class="fine">TickSignal pilot v0.1.0 · all figures sample until real submissions arrive Map tiles © OpenStreetMap contributors.</small></p>
+</footer>
+
+<script src="assets/data.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let DATA=null, mode='baseline', layer=null, map=null;
+const SPECIES_LABEL={blacklegged:'Blacklegged tick',lonestar:'Lone star tick',dogtick:'American dog tick',culex:'Culex mosquito',aedes:'Aedes mosquito'};
+const LEVEL_COLOR={High:'#ff8a8a',Moderate:'#ffc53d',Low:'#7fd069'};
+
+async function init(){
+  try{ const r=await fetch('data/data.json',{cache:'no-store'}); if(r.ok) DATA=await r.json(); }catch(e){}
+  if(!DATA) DATA=window.TICKSIGNAL_DATA||null;
+  if(!DATA){ document.getElementById('mapNote').textContent='Could not load sample data.'; return; }
+  const sp=document.getElementById('species');
+  Object.keys(SPECIES_LABEL).forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=SPECIES_LABEL[k]; sp.appendChild(o); });
+
+  if(typeof L==='undefined'){ fallback(); return; } // offline fallback
+  map=L.map('map').setView([42.7,-85.0],7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:18}).addTo(map);
+  draw();
+  document.getElementById('tBase').onclick=()=>setMode('baseline');
+  document.getElementById('tComm').onclick=()=>setMode('community');
+  sp.onchange=draw; document.getElementById('month').oninput=e=>{
+    document.getElementById('monthLbl').textContent=DATA.months[+e.target.value]; draw(); };
+}
+function setMode(m){ mode=m;
+  document.getElementById('tBase').classList.toggle('on',m==='baseline');
+  document.getElementById('tComm').classList.toggle('on',m==='community'); draw(); }
+function cum(arr,mi){ let s=0; for(let i=0;i<=mi;i++) s+=arr[i]||0; return s; }
+function draw(){
+  if(layer) map.removeLayer(layer); layer=L.layerGroup();
+  const sp=document.getElementById('species').value, mi=+document.getElementById('month').value;
+  DATA.mapCounties.forEach(c=>{
+    let popup, marker;
+    if(mode==='baseline'){
+      const lvl=c.baseline.level, b=c.baseline;
+      marker=L.circleMarker([c.lat,c.lng],{radius:16,color:LEVEL_COLOR[lvl],weight:2,fillColor:LEVEL_COLOR[lvl],fillOpacity:.35});
+      const hist=(b.cases_2020==null||b.cases_2021==null)?'':(' · 2020: '+b.cases_2020+' · 2021: '+b.cases_2021);
+      popup='<strong>'+c.county+' County</strong> <span class="badge baseline">REAL BASELINE</span><br>'+
+        '<strong>'+b.cases_2023+'</strong> reported Lyme cases, '+b.year+' ('+b.incidence_2023_per100k+'/100k)<br>'+
+        '<small>Source: '+b.source+'<br>Display bin: '+lvl+hist+'. '+
+        '<a href="data/BASELINE-SOURCES.md">Full sources &amp; caveats</a>. Surveillance context only — not medical advice.</small>';
+    }else{
+      const comm=c.community; let total=0, parts=[];
+      Object.keys(SPECIES_LABEL).forEach(k=>{ if(sp==='all'||sp===k){ const n=cum(comm[k]||[],mi); total+=n; if(n) parts.push(SPECIES_LABEL[k]+': '+n); }});
+      const r=Math.min(26, 6+Math.sqrt(total)*3.2);
+      marker=L.circleMarker([c.lat,c.lng],{radius:r,color:'#7fd069',weight:2,fillColor:'#7fd069',fillOpacity:.4});
+      popup='<strong>'+c.county+' County</strong> <span class="badge verified">SAMPLE COMMUNITY</span><br>'+total+' confirmed reports (through '+DATA.months[mi]+')<br><small>'+(parts.join(' · ')||'none for this filter')+'</small>';
+    }
+    marker.bindPopup(popup); layer.addLayer(marker);
+  });
+  layer.addTo(map);
+  document.getElementById('mapNote').textContent = mode==='baseline'
+    ? 'Showing REAL 2023 baseline — CDC NNDSS reported Lyme cases by county of residence (public domain). Display bins (High/Moderate/Low) are demo-only cutoffs, not official risk classes.'
+    : 'Showing SAMPLE community submissions — expert-confirmed demo reports, county-aggregated.';
+}
+function fallback(){
+  document.getElementById('map').style.display='none';
+  document.getElementById('mapNote').textContent='Map library could not load (offline). Baseline column is REAL CDC 2023 surveillance data; community column is sample data:';
+  const w=document.getElementById('fallbackWrap'); w.classList.remove('hidden');
+  const tb=document.querySelector('#fallbackTable tbody');
+  DATA.mapCounties.forEach(c=>{ const tot=Object.values(c.community).flat().reduce((a,b)=>a+b,0);
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+c.county+'</td><td>'+c.baseline.cases_2023+' reported cases, '+c.baseline.year+' ('+c.baseline.incidence_2023_per100k+'/100k) — '+c.baseline.level+'</td><td>'+tot+' sample reports</td>'; tb.appendChild(tr); });
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prediction vs. outcome — TickSignal</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — every row below is <strong>sample data</strong>. Real rows appear as the community submits and experts confirm.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/><path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit</a>
+    <a href="map.html">Map</a>
+    <a href="dashboard.html">AI Dashboard</a>
+    <a href="report.html">Field Report</a>
+    <a href="results.html" aria-current="page">Results</a>
+    <a href="learn.html">Learn</a>
+    <a href="faq.html">FAQ</a>
+    <a href="funding.html">Funding</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Prediction vs. outcome <span class="badge sample">SAMPLE ROWS</span></h1>
+  <p>Every AI suggestion, side by side with the expert's verdict. Matches in green, misses in red — no cherry-picking. Each miss becomes training data for Friday's retrain.</p>
+
+  <section class="card">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Submission</th><th>AI suggestion</th><th>Expert verdict</th><th>Result</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <p class="hint">Sample match rate on these rows: 5 of 8 (62.5%) — deliberately showing misses, because that's the point of this page. Aggregate accuracy is tracked on the <a href="dashboard.html">dashboard</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why misses are published</h2>
+    <ul>
+      <li><strong>Trust:</strong> an AI that admits mistakes is one you can calibrate.</li>
+      <li><strong>Science:</strong> the misses are exactly what the model retrains on.</li>
+      <li><strong>Safety:</strong> knowing the AI confuses lone star with dog tick 8% of the time matters more than knowing it gets blacklegged right 89% of the time.</li>
+    </ul>
+    <p class="hint">After launch, rows carry timestamps and link to the weekly report where they were first published. No names, no precise locations — ever.</p>
+  </section>
+
+  <div class="disclaimer">
+    <strong>This is not medical advice.</strong> Species identification for research mapping only. If you were bitten, see a clinician. <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC tick info</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="links">
+    <a href="faq.html">FAQ</a><a href="about.html">About</a><a href="funding.html">Funding</a>
+    <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC: ticks</a><a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+  <p>Species identification only — <strong>this is not medical advice.</strong> If you were bitten, see a clinician.</p>
+  <p><small class="fine">TickSignal pilot v0.1.0 · all figures sample until real submissions arrive</small></p>
+</footer>
+
+<script src="assets/data.js"></script>
+<script>
+async function init(){
+  let d=null;
+  try{ const r=await fetch('data/data.json',{cache:'no-store'}); if(r.ok) d=await r.json(); }catch(e){}
+  if(!d) d=window.TICKSIGNAL_DATA||null;
+  if(!d) return;
+  const tb=document.getElementById('rows');
+  d.resultsHistory.forEach(r=>{ const tr=document.createElement('tr');
+    tr.innerHTML='<td><span class="badge demo">'+r.id+'</span></td><td><span class="badge ai">AI</span> '+r.ai+'</td><td><span class="badge verified">EXPERT</span> '+r.expert+'</td><td class="'+r.outcome+'">'+r.outcome.toUpperCase()+'</td>';
+    tb.appendChild(tr); });
+}
+init();
+</script>
+</body>
+</html>

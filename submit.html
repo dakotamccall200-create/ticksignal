@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Submit a photo — TickSignal</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — no backend yet: submissions are stored <strong>only in this browser's localStorage</strong> and go nowhere. The real upload pipeline ships next.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/><path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="submit.html" aria-current="page">Submit</a>
+    <a href="map.html">Map</a>
+    <a href="dashboard.html">AI Dashboard</a>
+    <a href="report.html">Field Report</a>
+    <a href="results.html">Results</a>
+    <a href="learn.html">Learn</a>
+    <a href="faq.html">FAQ</a>
+    <a href="funding.html">Funding</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <h1>📸 Submit a photo <span class="badge demo">DEMO FORM</span></h1>
+  <p class="hint">Three taps: photo → location → done. This demo never uploads anything.</p>
+  <div class="stepbar" aria-hidden="true"><div id="sb1" class="on"></div><div id="sb2"></div><div id="sb3"></div></div>
+
+  <!-- STEP 1: photo -->
+  <section class="card" id="step1">
+    <h2>1 · The photo</h2>
+    <label for="photo">Choose or take a photo of the tick or mosquito</label>
+    <input type="file" id="photo" accept="image/*" capture="environment">
+    <p class="hint">Tip: get close, steady, and fill the frame. In the live system, <strong>EXIF location and metadata are stripped on intake</strong> — the photo is never published with identifying data.</p>
+    <div class="preview" id="preview" style="margin-top:12px"></div>
+    <div class="cta-row" style="justify-content:flex-start;margin-top:14px">
+      <button class="btn btn-primary" id="toStep2" disabled>Next: location →</button>
+    </div>
+  </section>
+
+  <!-- STEP 2: location -->
+  <section class="card hidden" id="step2">
+    <h2>2 · Location <span class="badge verified">COARSE ONLY</span></h2>
+    <p>We only ever store your <strong>county</strong>. Pick it, or let us coarsen your GPS:</p>
+    <label for="county">County</label>
+    <select id="county"><option value="">— choose a county —</option></select>
+    <div class="cta-row" style="justify-content:flex-start;margin:12px 0">
+      <button class="btn btn-ghost" id="useGps">📍 Use my location (coarsened)</button>
+    </div>
+    <p class="hint" id="gpsNote">If you tap GPS, coordinates are rounded to ~0.1° (≈11 km) in your browser, matched to the nearest county, and the precise point is <strong>never stored</strong>. This demo keeps only the county name in localStorage.</p>
+    <div class="cta-row" style="justify-content:flex-start;margin-top:14px">
+      <button class="btn btn-ghost" id="back1">← Back</button>
+      <button class="btn btn-primary" id="toStep3" disabled>Next: done →</button>
+    </div>
+  </section>
+
+  <!-- STEP 3: done -->
+  <section class="card hidden" id="step3">
+    <h2>3 · Done — here's what happens next</h2>
+    <label><input type="checkbox" id="consent" style="width:auto"> I understand this is a <strong>demo</strong>: my photo stays on this device, and in the live project I'd be licensing it for research under CC-BY.</label>
+    <div class="cta-row" style="justify-content:flex-start;margin-top:14px">
+      <button class="btn btn-ghost" id="back2">← Back</button>
+      <button class="btn btn-primary" id="finish" disabled>Submit (demo) ✓</button>
+    </div>
+  </section>
+
+  <!-- result -->
+  <section class="card hidden" id="resultCard">
+    <h2>✅ Submission received <span class="badge demo">DEMO</span></h2>
+    <dl class="kv">
+      <dt>Submission ID</dt><dd id="r-id">—</dd>
+      <dt>Stored location</dt><dd id="r-loc">—</dd>
+      <dt>Stored where</dt><dd>this browser's localStorage only (nothing uploaded)</dd>
+    </dl>
+    <div class="demo-result">
+      <h3>🤖 Demo AI suggestion <span class="badge demo">STUB — NOT A REAL CLASSIFIER</span></h3>
+      <p class="hint">In the live system this is where the real model returns its top-3. This demo rolls a sample guess so you can see the layout.</p>
+      <table id="aiTable"><thead><tr><th>#</th><th>Species</th><th>Confidence</th></tr></thead><tbody></tbody></table>
+      <p><strong>What happens next (live system):</strong> a volunteer entomologist confirms or corrects the suggestion → the confirmed sighting appears on the <a href="map.html">county map</a> → the photo joins the training set → Friday's retrain updates the <a href="dashboard.html">public accuracy chart</a>.</p>
+    </div>
+    <div class="disclaimer">
+      <strong>This is not medical advice.</strong> Species suggestions are for research mapping only. If you were bitten, see a clinician. <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC tick info</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+    </div>
+    <div class="cta-row" style="justify-content:flex-start">
+      <a class="btn btn-ghost" href="submit.html">Submit another</a>
+      <a class="btn btn-primary" href="map.html">See the map</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="links">
+    <a href="faq.html">FAQ</a><a href="about.html">About</a><a href="funding.html">Funding</a>
+    <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC: ticks</a><a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+  <p>Species identification only — <strong>this is not medical advice.</strong> If you were bitten, see a clinician.</p>
+  <p><small class="fine">TickSignal pilot v0.1.0 · all figures sample until real submissions arrive</small></p>
+</footer>
+
+<script src="assets/data.js"></script>
+<script>
+let DATA=null, COUNTIES=[];
+async function load(){ try{ const r=await fetch('data/data.json',{cache:'no-store'}); if(r.ok) DATA=await r.json(); }catch(e){} if(!DATA) DATA=window.TICKSIGNAL_DATA||null;
+  if(DATA){ COUNTIES=DATA.mapCounties; const sel=document.getElementById('county');
+    COUNTIES.forEach(c=>{ const o=document.createElement('option'); o.value=c.county; o.textContent=c.county+' County'; sel.appendChild(o); }); } }
+load();
+
+const $=id=>document.getElementById(id);
+function show(id){ ['step1','step2','step3'].forEach(s=>$(s).classList.toggle('hidden', s!==id));
+  ['sb1','sb2','sb3'].forEach((s,i)=>$(s).classList.toggle('on', i<=['step1','step2','step3'].indexOf(id))); }
+
+// step 1
+$('photo').addEventListener('change', e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const img=document.createElement('img'); img.alt='photo preview';
+  img.src=URL.createObjectURL(f);
+  $('preview').innerHTML=''; $('preview').appendChild(img);
+  const p=document.createElement('p'); p.className='hint';
+  p.textContent='Preview only — in the live system the file would now be EXIF-stripped on the server. Nothing has been uploaded.';
+  $('preview').appendChild(p);
+  $('toStep2').disabled=false;
+});
+$('toStep2').onclick=()=>show('step2');
+$('back1').onclick=()=>show('step1');
+
+// step 2 — coarse location handling
+$('county').addEventListener('change',()=>{ $('toStep3').disabled = !$('county').value; });
+$('useGps').onclick=()=>{
+  if(!navigator.geolocation){ $('gpsNote').textContent='Geolocation unavailable in this browser — please pick a county.'; return; }
+  $('gpsNote').textContent='Locating… (rounded in-browser; precise point never stored)';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const rLat=Math.round(pos.coords.latitude*10)/10, rLng=Math.round(pos.coords.longitude*10)/10;
+    // nearest sample county center
+    let best=null,bd=1e9;
+    COUNTIES.forEach(c=>{ const d=(c.lat-rLat)**2+(c.lng-rLng)**2; if(d<bd){bd=d;best=c;} });
+    if(best){ $('county').value=best.county; $('toStep3').disabled=false;
+      $('gpsNote').textContent='Rounded to '+rLat.toFixed(1)+'°, '+rLng.toFixed(1)+'° → matched to '+best.county+' County. Precise GPS discarded; only the county is stored.';
+    }
+  },()=>{ $('gpsNote').textContent='Location denied — please pick a county manually.'; },{timeout:8000});
+};
+$('toStep3').onclick=()=>show('step3');
+$('back2').onclick=()=>show('step2');
+
+// step 3 — demo submit
+$('consent').addEventListener('change',e=>{ $('finish').disabled=!e.target.checked; });
+$('finish').onclick=()=>{
+  const id='TS-DEMO-'+Math.floor(1000+Math.random()*9000);
+  const county=$('county').value;
+  const subs=JSON.parse(localStorage.getItem('ts_demo_submissions')||'[]');
+  subs.push({id,county,at:new Date().toISOString(),demo:true});
+  localStorage.setItem('ts_demo_submissions',JSON.stringify(subs));
+  $('r-id').textContent=id; $('r-loc').textContent=county+' County (coarse — precise location never collected)';
+  // demo AI stub
+  const sp=DATA?DATA.species:[{name:'Blacklegged tick'},{name:'Lone star tick'},{name:'American dog tick'}];
+  const picks=[...sp].sort(()=>Math.random()-.5).slice(0,3);
+  const confs=[88+Math.floor(Math.random()*9),60+Math.floor(Math.random()*20),35+Math.floor(Math.random()*20)];
+  const tb=document.querySelector('#aiTable tbody'); tb.innerHTML='';
+  picks.forEach((s,i)=>{ const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+(i+1)+'</td><td>'+s.name+'</td><td>'+confs[i]+'% <span class="badge demo">STUB</span></td>'; tb.appendChild(tr); });
+  ['step1','step2','step3'].forEach(s=>$(s).classList.add('hidden'));
+  $('resultCard').classList.remove('hidden');
+  window.scrollTo(0,0);
+};
+</script>
+</body>
+</html>

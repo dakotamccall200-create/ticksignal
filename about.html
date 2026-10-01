@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About — TickSignal</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — TickSignal just launched. This page describes the project as it stands today.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/><path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit</a>
+    <a href="map.html">Map</a>
+    <a href="dashboard.html">AI Dashboard</a>
+    <a href="report.html">Field Report</a>
+    <a href="results.html">Results</a>
+    <a href="learn.html">Learn</a>
+    <a href="faq.html">FAQ</a>
+    <a href="funding.html">Funding</a>
+    <a href="about.html" aria-current="page">About</a>
+  </nav>
+</header>
+
+<main>
+  <h1>About TickSignal</h1>
+
+  <section class="card">
+    <h2>The mission</h2>
+    <p>Tick-borne disease is exploding in Michigan — Lyme cases went from 553 in 2022 to 2,167 in 2025 (MDHHS). The public already photographs ticks by the thousand; an epidemiologist at MDHHS received over 1,000 tick-sighting photos in 2026 alone.</p>
+    <p>TickSignal turns those photos into public science: <strong>AI species ID in seconds, human expert confirmation, a live county risk map, and a public dashboard that publishes the AI's real accuracy every week</strong> — so anyone can watch the model learn. Nobody else does all four in one free, public project.</p>
+  </section>
+
+  <section class="card">
+    <h2>The method (the loop)</h2>
+    <div class="step"><div class="n">1</div><div><strong>Submit</strong> — a phone photo, coarsened to county, EXIF stripped.</div></div>
+    <div class="step"><div class="n">2</div><div><strong>Suggest</strong> — the AI returns a top-3 species guess with confidence. A suggestion, never a diagnosis.</div></div>
+    <div class="step"><div class="n">3</div><div><strong>Confirm</strong> — volunteer entomologists and public-health partners confirm or correct.</div></div>
+    <div class="step"><div class="n">4</div><div><strong>Publish</strong> — the dot lands on the map; the photo joins the training set; Friday's retrain updates the public accuracy chart.</div></div>
+    <p class="hint">Binding rules: species ID + public info only, never medical advice · coarse location only, no names on the map · honest accuracy, misses published · expert gating before anything is treated as confirmed · nothing published or solicited until the founder approves.</p>
+  </section>
+
+  <section class="card">
+    <h2>The people</h2>
+    <p><strong>Dakota McCall — Founder, Hastings, Michigan.</strong> A dad of two young kids who play outside, building the tool he wishes existed when he found a tick and couldn't get a straight answer about what it was. Michigan is the current front line of Lyme expansion — so the project starts at home.</p>
+    <p><strong>Muse — AI research agent.</strong> Designs, builds, and operates the pipeline: intake, ID model, validation routing, map and dashboard publishing, weekly retraining. All work is done on free tiers and open data — $0 spent.</p>
+    <p><strong>Expert reviewers — recruiting.</strong> Volunteer entomologists (tick taxonomy), a university Extension liaison, and county public-health partners. Listed with credentials on the <a href="dashboard.html">dashboard</a> once they agree.</p>
+  </section>
+
+  <section class="card">
+    <h2>Contact</h2>
+    <p>Health departments, Extension offices, and entomologists interested in the validation lane: the contact channel opens with launch. Until then, this demo is local-only and collects nothing.</p>
+    <p class="hint">For the research behind this project — funder evidence, competitor map, the full 30-day plan — see the Phase-1 research dossier (internal).</p>
+  </section>
+
+  <div class="disclaimer">
+    <strong>This is not medical advice.</strong> TickSignal identifies species and shares public information only — it never diagnoses disease. If you were bitten, see a clinician. <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC tick info</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="links">
+    <a href="faq.html">FAQ</a><a href="about.html">About</a><a href="funding.html">Funding</a>
+    <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC: ticks</a><a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+  <p>Species identification only — <strong>this is not medical advice.</strong> If you were bitten, see a clinician.</p>
+  <p><small class="fine">TickSignal pilot v0.1.0 · all figures sample until real submissions arrive</small></p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FAQ &amp; roadmap — TickSignal</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — FAQ and roadmap. TickSignal just launched; numbers below are sample until real submissions arrive.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/><path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit</a>
+    <a href="map.html">Map</a>
+    <a href="dashboard.html">AI Dashboard</a>
+    <a href="report.html">Field Report</a>
+    <a href="results.html">Results</a>
+    <a href="learn.html">Learn</a>
+    <a href="faq.html" aria-current="page">FAQ</a>
+    <a href="funding.html">Funding</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <h1>FAQ</h1>
+
+  <section class="card">
+    <h3>Is this medical advice? Can it tell me if I'll get sick?</h3>
+    <p><strong>No — and it never will.</strong> TickSignal identifies the <em>species</em> in a photo and shares public information. It does not diagnose disease, assess your personal risk, or recommend treatment. If you were bitten, see a clinician. Every results surface on this site carries that notice plus links to the <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC</a> and <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>.</p>
+    <h3>Is any of this data real?</h3>
+    <p><strong>Not yet — it's in pilot.</strong> The site is live, but every number is still labeled <span class="badge sample">SAMPLE</span>, <span class="badge baseline">BASELINE</span>, or <span class="badge demo">DEMO</span>. Real numbers appear only after launch.</p>
+    <h3>What happens to my photo and location?</h3>
+    <p>In the live system: EXIF metadata is stripped on intake, your location is coarsened to <strong>county</strong> before storage, the public map shows county-aggregated pins only, and no names ever appear. In this demo, nothing leaves your browser — submissions sit in localStorage.</p>
+    <h3>How accurate is the AI?</h3>
+    <p>You'll be able to see for yourself on the <a href="dashboard.html">dashboard</a> — weekly accuracy, the full confusion matrix, and every prediction next to its expert verdict on the <a href="results.html">results page</a>, misses included. That's the whole point: watch it learn.</p>
+    <h3>Who confirms the AI's guesses?</h3>
+    <p>Volunteer entomologists and public-health partners review the queue. AI suggestions stay suggestions until a human confirms them. Reviewer recruiting is on the <a href="faq.html#roadmap">roadmap</a>.</p>
+    <h3>Does it cover mosquitoes too?</h3>
+    <p>Yes — <em>Culex</em> and <em>Aedes</em> species ID from photos, same pipeline. Mosquitoes actually photograph better than ticks (wing-vein detail survives phone cameras).</p>
+    <h3>Does it cost anything?</h3>
+    <p>Submitting photos and viewing all data is free forever. Donations — when the ledger opens after founder approval — fund speed and coverage, never access. See <a href="funding.html">funding</a>.</p>
+    <h3>Why Michigan first?</h3>
+    <p>The founder lives in Hastings, Michigan, and the state is the current front line of Lyme expansion (553 cases in 2022 → 2,167 in 2025, per MDHHS). Start where the problem — and the founder — are.</p>
+  </section>
+
+  <h1 id="roadmap">Public roadmap</h1>
+  <section class="card">
+    <div class="step"><div class="n">✓</div><div><strong>Phase 1 — Research (done).</strong> Concept validated against funder evidence, competitor map, and feedback-loop analysis. Dossier complete.</div></div>
+    <div class="step"><div class="n">✓</div><div><strong>Phase 2 — MVP demo (this site).</strong> Static prototype of all 10 pages, sample data labeled everywhere, privacy-by-design submit flow. $0 spent.</div></div>
+    <div class="step"><div class="n">3</div><div><strong>Phase 3 — Real classifier.</strong> Assemble public tick/mosquito training set (GBIF, research datasets); baseline model in free Colab; publish the honest baseline number, whatever it is.</div></div>
+    <div class="step"><div class="n">4</div><div><strong>Phase 4 — Validation lane.</strong> Recruit volunteer entomologists + Extension/public-health partners; build the expert review queue.</div></div>
+    <div class="step"><div class="n">5</div><div><strong>Phase 5 — Michigan pilot.</strong> 200+ real submissions via Michigan outdoor/parent groups (admin permission only — no spam). First weekly retrain + published accuracy.</div></div>
+    <div class="step"><div class="n">6</div><div><strong>Phase 6 — Public launch.</strong> Founder approval gate. Real map, real dashboard, donation ledger opens. Success bar for day 30: ≥200 submissions, ≥70% expert confirmation, published baseline. Kill bar: real-photo accuracy &lt;60% after fixes, or zero expert volunteers → re-scope before any fundraising.</div></div>
+  </section>
+
+  <div class="disclaimer">
+    <strong>This is not medical advice.</strong> Species identification only. If you were bitten, see a clinician. <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC tick info</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="links">
+    <a href="faq.html">FAQ</a><a href="about.html">About</a><a href="funding.html">Funding</a>
+    <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC: ticks</a><a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+  <p>Species identification only — <strong>this is not medical advice.</strong> If you were bitten, see a clinician.</p>
+  <p><small class="fine">TickSignal pilot v0.1.0 · all figures sample until real submissions arrive</small></p>
+</footer>
+</body>
+</html>

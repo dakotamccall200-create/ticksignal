@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weekly field report — TickSignal</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — this report is a <strong>sample</strong> showing the auto-generated format. Real weekly reports begin with community submissions.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/><path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit</a>
+    <a href="map.html">Map</a>
+    <a href="dashboard.html">AI Dashboard</a>
+    <a href="report.html" aria-current="page">Field Report</a>
+    <a href="results.html">Results</a>
+    <a href="learn.html">Learn</a>
+    <a href="faq.html">FAQ</a>
+    <a href="funding.html">Funding</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Weekly field report <span class="badge sample">SAMPLE</span></h1>
+  <p class="hint">Auto-generated every Friday from the week's confirmed data, then reviewed by a human before publishing. Archive below.</p>
+
+  <article class="card">
+    <p><span class="badge sample">SAMPLE</span> <small class="hint" id="r-week"></small></p>
+    <h2 id="r-headline"></h2>
+    <div class="counters" style="grid-template-columns:repeat(4,1fr)">
+      <div class="counter"><div class="num" id="r-sub">—</div><div class="lbl">submissions</div></div>
+      <div class="counter"><div class="num" id="r-conf">—</div><div class="lbl">expert-confirmed</div></div>
+      <div class="counter"><div class="num" id="r-new">—</div><div class="lbl">new counties</div></div>
+      <div class="counter"><div class="num" id="r-acc">—</div><div class="lbl">AI accuracy</div></div>
+    </div>
+    <div id="r-body"></div>
+    <p class="hint">Method: submissions → AI suggestion → expert confirm/correct → county aggregation → this report. Full transparency trail on the <a href="results.html">results page</a> and <a href="dashboard.html">dashboard</a>.</p>
+  </article>
+
+  <section class="card">
+    <h2>Archive</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Week</th><th>Headline</th><th>Submissions</th><th>Status</th></tr></thead>
+      <tbody><tr><td id="a-week">—</td><td id="a-head">—</td><td id="a-sub">—</td><td><span class="badge sample">SAMPLE</span></td></tr></tbody>
+    </table></div>
+    <p class="hint">Real reports begin with launch week #1. This archive will grow every Friday.</p>
+  </section>
+
+  <div class="disclaimer">
+    <strong>This is not medical advice.</strong> Field reports describe research-mapping activity, not health guidance. If you were bitten, see a clinician. <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC tick info</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="links">
+    <a href="faq.html">FAQ</a><a href="about.html">About</a><a href="funding.html">Funding</a>
+    <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC: ticks</a><a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+  <p>Species identification only — <strong>this is not medical advice.</strong> If you were bitten, see a clinician.</p>
+  <p><small class="fine">TickSignal pilot v0.1.0 · all figures sample until real submissions arrive</small></p>
+</footer>
+
+<script src="assets/data.js"></script>
+<script>
+async function init(){
+  let d=null;
+  try{ const r=await fetch('data/data.json',{cache:'no-store'}); if(r.ok) d=await r.json(); }catch(e){}
+  if(!d) d=window.TICKSIGNAL_DATA||null;
+  if(!d) return;
+  const fr=d.fieldReport;
+  document.getElementById('r-week').textContent='Week of '+fr.week+' · auto-generated, human-reviewed';
+  document.getElementById('r-headline').textContent=fr.headline;
+  document.getElementById('r-sub').textContent=fr.stats.submissions;
+  document.getElementById('r-conf').textContent=fr.stats.confirmed;
+  document.getElementById('r-new').textContent=fr.stats.newCounties;
+  document.getElementById('r-acc').textContent=fr.stats.accuracy.toFixed(1)+'%';
+  document.getElementById('r-body').innerHTML=fr.body.map(p=>'<p>'+p+'</p>').join('');
+  document.getElementById('a-week').textContent=fr.week;
+  document.getElementById('a-head').textContent=fr.headline;
+  document.getElementById('a-sub').textContent=fr.stats.submissions;
+}
+init();
+</script>
+</body>
+</html>
