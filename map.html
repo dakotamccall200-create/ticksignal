@@ -47,6 +47,7 @@
     <div class="toggle" role="tablist" aria-label="data source">
       <button id="tBase" class="on" role="tab">Baseline (official data)</button>
       <button id="tComm" role="tab">Community (this project)</button>
+      <button id="tVer" role="tab">Verified reports</button>
     </div>
     <label class="hint" style="margin:0">Species
       <select id="species"><option value="all">All</option></select>
@@ -59,6 +60,7 @@
 
   <div id="map" role="application" aria-label="sample tick risk map"></div>
   <p class="hint" id="mapNote"></p>
+  <p class="hint" id="verifiedNote" style="margin-top:8px"></p>
 
   <div class="table-wrap hidden" id="fallbackWrap">
     <h3>Offline fallback — county table <span class="badge baseline">BASELINE REAL</span> <span class="badge sample">COMMUNITY SAMPLE</span></h3>
@@ -70,6 +72,7 @@
     <ul>
       <li><span class="badge baseline">BASELINE</span> pins show <strong>real</strong> 2023 CDC surveillance data: reported Lyme cases (confirmed + probable) per county. <small>Source: CDC NNDSS county-level public-use data, public domain · <a href="data/BASELINE-SOURCES.md">full sources &amp; caveats</a></small></li>
       <li><span class="badge verified">COMMUNITY</span> pins show expert-confirmed submissions to this project (sample demo data).</li>
+      <li><span class="badge verified">VERIFIED</span> pins show real expert-confirmed submissions, county-aggregated. Appears once the upload pipeline is live and submissions are reviewed.</li>
       <li>The time slider accumulates sample community reports through the selected month. Species filter isolates one vector.</li>
       <li>A county with no pins means <strong>no data</strong>, not no risk. That's the point — <a href="submit.html">send a photo</a>.</li>
     </ul>
@@ -91,11 +94,33 @@
 </footer>
 
 <script src="assets/data.js"></script>
+<script src="assets/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-client.js"></script>
+<script src="assets/counties.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 let DATA=null, mode='baseline', layer=null, map=null;
+let VERIFIED=null, verifiedTried=false;
 const SPECIES_LABEL={blacklegged:'Blacklegged tick',lonestar:'Lone star tick',dogtick:'American dog tick',culex:'Culex mosquito',aedes:'Aedes mosquito'};
 const LEVEL_COLOR={High:'#ff8a8a',Moderate:'#ffc53d',Low:'#7fd069'};
+
+// Verified community reports: fetch approved sightings once, skip silently if unconfigured.
+async function loadVerified(){
+  if(verifiedTried) return; verifiedTried=true;
+  if(!window.TS || !TS.configured()){ console.info('[ticksignal] backend unconfigured — skipping verified reports layer'); return; }
+  const cols='id,photo_url,county,state,observed_at,ai_prediction,created_at';
+  try{
+    const sb=TS.client();
+    let res=await sb.from('public_map_feed').select(cols).order('created_at',{ascending:false});
+    if(res.error){ // view may lack an anon grant — fall back to direct table read (RLS allows approved rows)
+      console.info('[ticksignal] public_map_feed read failed, trying sightings directly:',res.error.message);
+      res=await sb.from('sightings').select(cols).eq('status','approved').order('created_at',{ascending:false});
+    }
+    if(res.error){ console.info('[ticksignal] verified reports fetch failed:',res.error.message); return; }
+    VERIFIED=res.data||[];
+  }catch(e){ console.info('[ticksignal] verified reports fetch failed:',e); }
+}
 
 async function init(){
   try{ const r=await fetch('data/data.json',{cache:'no-store'}); if(r.ok) DATA=await r.json(); }catch(e){}
@@ -107,17 +132,64 @@ async function init(){
   if(typeof L==='undefined'){ fallback(); return; } // offline fallback
   map=L.map('map').setView([42.7,-85.0],7);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:18}).addTo(map);
+  await loadVerified();
   draw();
   document.getElementById('tBase').onclick=()=>setMode('baseline');
   document.getElementById('tComm').onclick=()=>setMode('community');
+  document.getElementById('tVer').onclick=()=>setMode('verified');
   sp.onchange=draw; document.getElementById('month').oninput=e=>{
     document.getElementById('monthLbl').textContent=DATA.months[+e.target.value]; draw(); };
 }
 function setMode(m){ mode=m;
   document.getElementById('tBase').classList.toggle('on',m==='baseline');
-  document.getElementById('tComm').classList.toggle('on',m==='community'); draw(); }
+  document.getElementById('tComm').classList.toggle('on',m==='community');
+  document.getElementById('tVer').classList.toggle('on',m==='verified'); draw(); }
 function cum(arr,mi){ let s=0; for(let i=0;i<=mi;i++) s+=arr[i]||0; return s; }
+function latinToId(latin){
+  const f=(DATA.species||[]).find(s=>s.latin===latin);
+  return f?f.id:null;
+}
+function latinToName(latin){
+  const f=(DATA.species||[]).find(s=>s.latin===latin);
+  return f?f.name:latin;
+}
+function drawVerified(){
+  if(layer) map.removeLayer(layer); layer=L.layerGroup();
+  const sp=document.getElementById('species').value;
+  const note=document.getElementById('verifiedNote');
+  const centers=window.countyCenters(DATA.mapCounties); // reuse coarse county centers
+  const byCounty={};
+  (VERIFIED||[]).forEach(function(r){
+    const id=r.ai_prediction&&r.ai_prediction.species?latinToId(r.ai_prediction.species):null;
+    if(sp!=='all' && id!==sp) return; // species filter; reports without a suggestion show only under "All"
+    (byCounty[r.county]=byCounty[r.county]||[]).push(r);
+  });
+  const counties=Object.keys(byCounty);
+  if(!counties.length){
+    note.innerHTML='No verified community reports yet — <a href="submit.html">be the first to submit</a>.';
+    layer.addTo(map); return;
+  }
+  note.textContent='';
+  counties.forEach(function(cnty){
+    const ll=centers[cnty]; if(!ll) return;
+    const rows=byCounty[cnty];
+    const marker=L.circleMarker(ll,{radius:Math.min(26,8+Math.sqrt(rows.length)*4),color:'#4da3ff',weight:2,fillColor:'#4da3ff',fillOpacity:.45});
+    let lines=rows.slice(0,5).map(function(r){
+      const when=r.observed_at?new Date(r.observed_at+'T12:00:00').toLocaleDateString():'date unknown';
+      const sp2=r.ai_prediction&&r.ai_prediction.species?latinToName(r.ai_prediction.species):'expert-reviewed';
+      return when+' — '+sp2;
+    });
+    if(rows.length>5) lines.push('…and '+(rows.length-5)+' more');
+    const popup='<strong>'+cnty+' County</strong> <span class="badge verified">VERIFIED</span><br>'+
+      rows.length+' expert-confirmed report'+(rows.length>1?'s':'')+'<br><small>'+lines.join('<br>')+'</small>';
+    marker.bindPopup(popup); layer.addLayer(marker);
+  });
+  layer.addTo(map);
+}
 function draw(){
+  document.getElementById('verifiedNote').textContent='';
+  if(mode==='verified'){ drawVerified();
+    document.getElementById('mapNote').textContent='Showing VERIFIED community reports — expert-confirmed, county-aggregated. No names, no precise locations.'; return; }
   if(layer) map.removeLayer(layer); layer=L.layerGroup();
   const sp=document.getElementById('species').value, mi=+document.getElementById('month').value;
   DATA.mapCounties.forEach(c=>{

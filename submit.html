@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-<div class="demo-banner">PILOT — no backend yet: submissions are stored <strong>only in this browser's localStorage</strong> and go nowhere. The real upload pipeline ships next.</div>
+<div class="demo-banner" id="pipelineBanner">PILOT — checking the upload pipeline…</div>
 <header class="site-header">
   <a class="brand" href="index.html">
     <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
@@ -39,8 +39,8 @@
 </header>
 
 <main>
-  <h1>📸 Submit a photo <span class="badge demo">DEMO FORM</span></h1>
-  <p class="hint">Three taps: photo → location → done. This demo never uploads anything.</p>
+  <h1>📸 Submit a photo</h1>
+  <p class="hint">Three steps: photo → location → review. Photos are EXIF-stripped in your browser before upload; no name or contact info is collected.</p>
   <div class="stepbar" aria-hidden="true"><div id="sb1" class="on"></div><div id="sb2"></div><div id="sb3"></div></div>
 
   <!-- STEP 1: photo -->
@@ -48,7 +48,7 @@
     <h2>1 · The photo</h2>
     <label for="photo">Choose or take a photo of the tick or mosquito</label>
     <input type="file" id="photo" accept="image/*" capture="environment">
-    <p class="hint">Tip: get close, steady, and fill the frame. In the live system, <strong>EXIF location and metadata are stripped on intake</strong> — the photo is never published with identifying data.</p>
+    <p class="hint">Tip: get close, steady, and fill the frame. Your photo is downscaled to max 1600&nbsp;px and re-encoded as JPEG <strong>in your browser</strong> — this strips <strong>ALL EXIF</strong> location and metadata before anything is uploaded.</p>
     <div class="preview" id="preview" style="margin-top:12px"></div>
     <div class="cta-row" style="justify-content:flex-start;margin-top:14px">
       <button class="btn btn-primary" id="toStep2" disabled>Next: location →</button>
@@ -64,36 +64,40 @@
     <div class="cta-row" style="justify-content:flex-start;margin:12px 0">
       <button class="btn btn-ghost" id="useGps">📍 Use my location (coarsened)</button>
     </div>
-    <p class="hint" id="gpsNote">If you tap GPS, coordinates are rounded to ~0.1° (≈11 km) in your browser, matched to the nearest county, and the precise point is <strong>never stored</strong>. This demo keeps only the county name in localStorage.</p>
+    <p class="hint" id="gpsNote">If you tap GPS, coordinates are rounded to ~0.1° (≈11 km) in your browser, matched to the nearest county, and the precise point is <strong>never stored</strong> — only the county name goes with your submission.</p>
+    <label for="observed">Date observed</label>
+    <input type="date" id="observed" style="width:auto">
+    <label for="notes" style="margin-top:12px">Notes <span class="hint">(optional, max 500 characters)</span></label>
+    <textarea id="notes" maxlength="500" rows="3" placeholder="e.g. found on dog after a trail walk…"></textarea>
+    <p class="hint">County-level only — don't include street addresses or precise locations.</p>
     <div class="cta-row" style="justify-content:flex-start;margin-top:14px">
       <button class="btn btn-ghost" id="back1">← Back</button>
-      <button class="btn btn-primary" id="toStep3" disabled>Next: done →</button>
+      <button class="btn btn-primary" id="toStep3" disabled>Next: review →</button>
     </div>
   </section>
 
-  <!-- STEP 3: done -->
+  <!-- STEP 3: review + consent -->
   <section class="card hidden" id="step3">
-    <h2>3 · Done — here's what happens next</h2>
-    <label><input type="checkbox" id="consent" style="width:auto"> I understand this is a <strong>demo</strong>: my photo stays on this device, and in the live project I'd be licensing it for research under CC-BY.</label>
+    <h2>3 · Review &amp; submit</h2>
+    <p>Every submission is reviewed by a volunteer entomologist before it appears on the public map. Our research identification model runs over new photos in the weekly pipeline — results feed the <a href="dashboard.html">public accuracy dashboard</a>.</p>
+    <label><input type="checkbox" id="consent" style="width:auto"> I license this photo for research use under <strong>CC-BY</strong>. I understand the county I selected will be shown publicly on the map, and no name or contact info is collected.</label>
     <div class="cta-row" style="justify-content:flex-start;margin-top:14px">
       <button class="btn btn-ghost" id="back2">← Back</button>
-      <button class="btn btn-primary" id="finish" disabled>Submit (demo) ✓</button>
+      <button class="btn btn-primary" id="finish" disabled>Submit photo ✓</button>
     </div>
+    <p class="hint" id="submitNote" style="margin-top:10px"></p>
   </section>
 
   <!-- result -->
   <section class="card hidden" id="resultCard">
-    <h2>✅ Submission received <span class="badge demo">DEMO</span></h2>
+    <h2>✅ Submission received</h2>
     <dl class="kv">
       <dt>Submission ID</dt><dd id="r-id">—</dd>
       <dt>Stored location</dt><dd id="r-loc">—</dd>
-      <dt>Stored where</dt><dd>this browser's localStorage only (nothing uploaded)</dd>
+      <dt>Status</dt><dd>pending expert review</dd>
     </dl>
     <div class="demo-result">
-      <h3>🤖 Demo AI suggestion <span class="badge demo">STUB — NOT A REAL CLASSIFIER</span></h3>
-      <p class="hint">In the live system this is where the real model returns its top-3. This demo rolls a sample guess so you can see the layout.</p>
-      <table id="aiTable"><thead><tr><th>#</th><th>Species</th><th>Confidence</th></tr></thead><tbody></tbody></table>
-      <p><strong>What happens next (live system):</strong> a volunteer entomologist confirms or corrects the suggestion → the confirmed sighting appears on the <a href="map.html">county map</a> → the photo joins the training set → Friday's retrain updates the <a href="dashboard.html">public accuracy chart</a>.</p>
+      <p><strong>What happens next:</strong> a volunteer entomologist confirms or corrects the species → the confirmed sighting appears on the <a href="map.html">county map</a> → the photo joins the training set → Friday's retrain updates the <a href="dashboard.html">public accuracy chart</a>.</p>
     </div>
     <div class="disclaimer">
       <strong>This is not medical advice.</strong> Species suggestions are for research mapping only. If you were bitten, see a clinician. <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC tick info</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
@@ -116,69 +120,140 @@
 </footer>
 
 <script src="assets/data.js"></script>
+<script src="assets/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-client.js"></script>
+<script src="assets/counties.js"></script>
 <script>
-let DATA=null, COUNTIES=[];
-async function load(){ try{ const r=await fetch('data/data.json',{cache:'no-store'}); if(r.ok) DATA=await r.json(); }catch(e){} if(!DATA) DATA=window.TICKSIGNAL_DATA||null;
-  if(DATA){ COUNTIES=DATA.mapCounties; const sel=document.getElementById('county');
-    COUNTIES.forEach(c=>{ const o=document.createElement('option'); o.value=c.county; o.textContent=c.county+' County'; sel.appendChild(o); }); } }
-load();
+var DATA=null, COUNTIES=[], LIVE=false, photoBlob=null;
+var MAX_BYTES=5*1024*1024; // 5 MB client-side limit (storage RLS cannot enforce size)
 
-const $=id=>document.getElementById(id);
-function show(id){ ['step1','step2','step3'].forEach(s=>$(s).classList.toggle('hidden', s!==id));
-  ['sb1','sb2','sb3'].forEach((s,i)=>$(s).classList.toggle('on', i<=['step1','step2','step3'].indexOf(id))); }
+function load(){
+  return fetch('data/data.json',{cache:'no-store'}).then(function(r){ if(r.ok) return r.json(); return null; })
+    .catch(function(){ return null; })
+    .then(function(d){
+      DATA = d || window.TICKSIGNAL_DATA || null;
+      if(DATA){
+        COUNTIES = DATA.mapCounties || [];
+        var sel=document.getElementById('county');
+        COUNTIES.forEach(function(c){ var o=document.createElement('option'); o.value=c.county; o.textContent=c.county+' County'; sel.appendChild(o); });
+      }
+    });
+}
 
-// step 1
-$('photo').addEventListener('change', e=>{
-  const f=e.target.files[0]; if(!f) return;
-  const img=document.createElement('img'); img.alt='photo preview';
-  img.src=URL.createObjectURL(f);
-  $('preview').innerHTML=''; $('preview').appendChild(img);
-  const p=document.createElement('p'); p.className='hint';
-  p.textContent='Preview only — in the live system the file would now be EXIF-stripped on the server. Nothing has been uploaded.';
-  $('preview').appendChild(p);
-  $('toStep2').disabled=false;
+var $=function(id){ return document.getElementById(id); };
+function show(id){ ['step1','step2','step3'].forEach(function(s){ $(s).classList.toggle('hidden', s!==id); });
+  ['sb1','sb2','sb3'].forEach(function(s,i){ $(s).classList.toggle('on', i<=['step1','step2','step3'].indexOf(id)); }); }
+
+function blobToImage(blob){
+  return new Promise(function(resolve,reject){
+    if(window.createImageBitmap){ window.createImageBitmap(blob).then(resolve,reject); return; }
+    var url=URL.createObjectURL(blob), img=new Image();
+    img.onload=function(){ URL.revokeObjectURL(url); resolve(img); };
+    img.onerror=function(e){ URL.revokeObjectURL(url); reject(e); };
+    img.src=url;
+  });
+}
+
+// Downscale to max 1600px on the long edge + re-encode as JPEG.
+// Re-encoding is what strips ALL EXIF (GPS, device, timestamps).
+function processPhoto(file){
+  return blobToImage(file).then(function(img){
+    var w=img.width||img.naturalWidth, h=img.height||img.naturalHeight;
+    var scale=Math.min(1, 1600/Math.max(w,h));
+    var cw=Math.max(1,Math.round(w*scale)), ch=Math.max(1,Math.round(h*scale));
+    var cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
+    cv.getContext('2d').drawImage(img,0,0,cw,ch);
+    return new Promise(function(resolve,reject){
+      cv.toBlob(function(b){ b?resolve(b):reject(new Error('encode failed')); },'image/jpeg',0.85);
+    });
+  });
+}
+
+// step 1 — EXIF-stripping intake
+$('photo').addEventListener('change',function(e){
+  var f=e.target.files[0]; if(!f) return;
+  $('toStep2').disabled=true;
+  if(f.type && f.type.indexOf('image/')!==0){ $('preview').innerHTML='<p class="hint">That file is not an image — please choose a photo.</p>'; return; }
+  if(f.size>MAX_BYTES){ $('preview').innerHTML='<p class="hint">That photo is over 5 MB — please choose a smaller one.</p>'; return; }
+  $('preview').innerHTML='<p class="hint">Processing…</p>';
+  processPhoto(f).then(function(blob){
+    photoBlob=blob;
+    var url=URL.createObjectURL(blob);
+    var img=document.createElement('img'); img.alt='photo preview'; img.src=url;
+    $('preview').innerHTML=''; $('preview').appendChild(img);
+    var p=document.createElement('p'); p.className='hint';
+    p.textContent='Preview is the processed upload copy — downscaled to max 1600 px and re-encoded as JPEG, so all EXIF location/metadata is stripped. Nothing is uploaded until you hit Submit.';
+    $('preview').appendChild(p);
+    $('toStep2').disabled=false;
+  }).catch(function(){
+    $('preview').innerHTML='<p class="hint">Could not read that photo — please try another file.</p>';
+  });
 });
-$('toStep2').onclick=()=>show('step2');
-$('back1').onclick=()=>show('step1');
+$('toStep2').onclick=function(){ show('step2'); };
+$('back1').onclick=function(){ show('step1'); };
 
 // step 2 — coarse location handling
-$('county').addEventListener('change',()=>{ $('toStep3').disabled = !$('county').value; });
-$('useGps').onclick=()=>{
+$('county').addEventListener('change',function(){ $('toStep3').disabled = !$('county').value; });
+$('useGps').onclick=function(){
   if(!navigator.geolocation){ $('gpsNote').textContent='Geolocation unavailable in this browser — please pick a county.'; return; }
   $('gpsNote').textContent='Locating… (rounded in-browser; precise point never stored)';
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const rLat=Math.round(pos.coords.latitude*10)/10, rLng=Math.round(pos.coords.longitude*10)/10;
-    // nearest sample county center
-    let best=null,bd=1e9;
-    COUNTIES.forEach(c=>{ const d=(c.lat-rLat)**2+(c.lng-rLng)**2; if(d<bd){bd=d;best=c;} });
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var rLat=Math.round(pos.coords.latitude*10)/10, rLng=Math.round(pos.coords.longitude*10)/10;
+    var best=window.nearestCounty(COUNTIES, rLat, rLng); // matcher: nearest coarse county center
     if(best){ $('county').value=best.county; $('toStep3').disabled=false;
       $('gpsNote').textContent='Rounded to '+rLat.toFixed(1)+'°, '+rLng.toFixed(1)+'° → matched to '+best.county+' County. Precise GPS discarded; only the county is stored.';
     }
-  },()=>{ $('gpsNote').textContent='Location denied — please pick a county manually.'; },{timeout:8000});
+  },function(){ $('gpsNote').textContent='Location denied — please pick a county manually.'; },{timeout:8000});
 };
-$('toStep3').onclick=()=>show('step3');
-$('back2').onclick=()=>show('step2');
+$('toStep3').onclick=function(){ show('step3'); };
+$('back2').onclick=function(){ show('step2'); };
 
-// step 3 — demo submit
-$('consent').addEventListener('change',e=>{ $('finish').disabled=!e.target.checked; });
-$('finish').onclick=()=>{
-  const id='TS-DEMO-'+Math.floor(1000+Math.random()*9000);
-  const county=$('county').value;
-  const subs=JSON.parse(localStorage.getItem('ts_demo_submissions')||'[]');
-  subs.push({id,county,at:new Date().toISOString(),demo:true});
-  localStorage.setItem('ts_demo_submissions',JSON.stringify(subs));
-  $('r-id').textContent=id; $('r-loc').textContent=county+' County (coarse — precise location never collected)';
-  // demo AI stub
-  const sp=DATA?DATA.species:[{name:'Blacklegged tick'},{name:'Lone star tick'},{name:'American dog tick'}];
-  const picks=[...sp].sort(()=>Math.random()-.5).slice(0,3);
-  const confs=[88+Math.floor(Math.random()*9),60+Math.floor(Math.random()*20),35+Math.floor(Math.random()*20)];
-  const tb=document.querySelector('#aiTable tbody'); tb.innerHTML='';
-  picks.forEach((s,i)=>{ const tr=document.createElement('tr');
-    tr.innerHTML='<td>'+(i+1)+'</td><td>'+s.name+'</td><td>'+confs[i]+'% <span class="badge demo">STUB</span></td>'; tb.appendChild(tr); });
-  ['step1','step2','step3'].forEach(s=>$(s).classList.add('hidden'));
-  $('resultCard').classList.remove('hidden');
-  window.scrollTo(0,0);
+// step 3 — consent + upload
+$('consent').addEventListener('change',function(e){ $('finish').disabled = !e.target.checked || !LIVE; });
+$('finish').onclick=function(){
+  if(!LIVE) return;
+  var sb=TS.client(); if(!sb){ $('submitNote').textContent='Upload pipeline unavailable — please try again later.'; return; }
+  var county=$('county').value, observed=$('observed').value||null, notes=$('notes').value.trim()||null;
+  $('finish').disabled=true; $('submitNote').textContent='Uploading photo…';
+  var path='web/'+(crypto.randomUUID?crypto.randomUUID():'ts-'+Date.now()+'-'+Math.floor(Math.random()*1e6))+'.jpg';
+  sb.storage.from('sighting-photos').upload(path,photoBlob,{contentType:'image/jpeg'})
+    .then(function(up){
+      if(up.error) throw up.error;
+      var pub=sb.storage.from('sighting-photos').getPublicUrl(path);
+      return sb.from('sightings').insert({
+        photo_url: pub.data.publicUrl, county: county, state: 'MI',
+        observed_at: observed, notes: notes,
+        ai_prediction: null, status: 'pending', source: 'web'
+      }).select('id').single();
+    })
+    .then(function(ins){
+      if(ins.error) throw ins.error;
+      $('r-id').textContent=ins.data.id;
+      $('r-loc').textContent=county+' County (coarse — precise location never collected)';
+      ['step1','step2','step3'].forEach(function(s){ $(s).classList.add('hidden'); });
+      $('resultCard').classList.remove('hidden');
+      window.scrollTo(0,0);
+    })
+    .catch(function(err){
+      $('submitNote').textContent='Upload failed: '+(err&&err.message?err.message:'unknown error')+'. Nothing was stored — please try again.';
+      $('finish').disabled=false;
+    });
 };
+
+// pipeline status: honest banner + hard pause while unconfigured
+load().then(function(){
+  LIVE = TS.configured();
+  var banner=$('pipelineBanner');
+  if(!LIVE){
+    banner.innerHTML='PILOT — <strong>the upload pipeline is being connected — submissions are paused until the backend is live.</strong> Nothing is uploaded.';
+    $('submitNote').textContent='Submissions are paused until the backend is live. Nothing is uploaded.';
+    $('finish').disabled=true;
+  }else{
+    banner.innerHTML='PILOT — <strong>secure upload pipeline is live.</strong> Photos are EXIF-stripped in your browser before upload; county-level only, no names.';
+  }
+  var obs=$('observed'); if(obs && !obs.value){ obs.value=new Date().toISOString().slice(0,10); }
+});
 </script>
 </body>
 </html>

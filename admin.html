@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Reviewer sign-in — TickSignal</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — reviewer area. Not linked from the main site.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/><path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit</a>
+    <a href="map.html">Map</a>
+    <a href="dashboard.html">AI Dashboard</a>
+    <a href="report.html">Field Report</a>
+    <a href="results.html">Results</a>
+    <a href="learn.html">Learn</a>
+    <a href="faq.html">FAQ</a>
+    <a href="funding.html">Funding</a>
+    <a class="btn btn-donate" href="https://ko-fi.com/dakotamccall9" target="_blank" rel="noopener">♥ Donate</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <h1>🔍 Review queue <span class="badge demo">REVIEWERS ONLY</span></h1>
+
+  <section class="card" id="statusCard">
+    <h2>Backend status</h2>
+    <p id="statusMsg">Checking…</p>
+  </section>
+
+  <section class="card hidden" id="signinCard">
+    <h2>Reviewer sign-in</h2>
+    <p class="hint">Reviewers sign in with an email magic link. Only the project owner can approve or reject submissions.</p>
+    <label for="email">Email</label>
+    <input type="email" id="email" inputmode="email" autocomplete="email" placeholder="you@example.org" style="max-width:320px">
+    <div class="cta-row" style="justify-content:flex-start;margin-top:12px">
+      <button class="btn btn-primary" id="sendLink">Send magic link</button>
+    </div>
+    <p class="hint" id="signinMsg"></p>
+  </section>
+
+  <section class="card hidden" id="queueCard">
+    <h2>Pending submissions</h2>
+    <p class="hint" id="counts">—</p>
+    <div class="cta-row" style="justify-content:flex-start;margin-bottom:12px">
+      <button class="btn btn-ghost" id="refresh">↻ Refresh</button>
+      <button class="btn btn-ghost" id="signout">Sign out</button>
+    </div>
+    <div id="queue"></div>
+  </section>
+
+  <div class="disclaimer">
+    <strong>This is not medical advice.</strong> Species identification only. If you were bitten, see a clinician. <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC tick info</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="links">
+    <a href="faq.html">FAQ</a><a href="about.html">About</a><a href="funding.html">Funding</a>
+    <a class="btn btn-donate" href="https://ko-fi.com/dakotamccall9" target="_blank" rel="noopener">♥ Donate</a>
+    <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC: ticks</a><a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>
+  </div>
+  <p>Species identification only — <strong>this is not medical advice.</strong> If you were bitten, see a clinician.</p>
+  <p><small class="fine">TickSignal pilot v0.1.0 · all figures sample until real submissions arrive</small></p>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-client.js"></script>
+<script>
+var $=function(id){ return document.getElementById(id); };
+var sb=null, authed=false;
+
+function setStatus(html){ $('statusMsg').innerHTML=html; }
+
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+}
+
+function loadCounts(){
+  if(!sb) return;
+  sb.from('sightings').select('id',{count:'exact',head:true}).eq('status','pending').then(function(p){
+    sb.from('sightings').select('id',{count:'exact',head:true}).eq('status','approved').then(function(a){
+      sb.from('sightings').select('id',{count:'exact',head:true}).eq('status','rejected').then(function(r){
+        $('counts').textContent='Pending: '+(p.count==null?'?':p.count)+' · Approved: '+(a.count==null?'?':a.count)+' · Rejected: '+(r.count==null?'?':r.count);
+      });
+    });
+  });
+}
+
+function review(id,status){
+  if(!sb||!authed) return;
+  sb.from('sightings').update({status:status, reviewed_at:new Date().toISOString()}).eq('id',id)
+    .then(function(res){
+      if(res.error){ alert('Update failed: '+res.error.message); return; }
+      loadQueue();
+    });
+}
+
+function loadQueue(){
+  var q=$('queue'); q.innerHTML='<p class="hint">Loading…</p>';
+  sb.from('sightings').select('*').eq('status','pending').order('created_at',{ascending:true}).limit(100)
+    .then(function(res){
+      if(res.error){ q.innerHTML='<p class="hint">Queue failed to load: '+escapeHtml(res.error.message)+'</p>'; return; }
+      var rows=res.data||[];
+      loadCounts();
+      if(!rows.length){ q.innerHTML='<p class="hint">No pending submissions — the queue is clear.</p>'; return; }
+      q.innerHTML='';
+      rows.forEach(function(s){
+        var card=document.createElement('div'); card.className='card'; card.style.margin='12px 0';
+        var when=s.created_at?new Date(s.created_at).toLocaleString():'—';
+        card.innerHTML=
+          '<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start">'+
+          '<img src="'+escapeHtml(s.photo_url)+'" alt="submission photo" style="max-width:220px;border-radius:8px">'+
+          '<div style="flex:1;min-width:220px">'+
+          '<dl class="kv">'+
+          '<dt>ID</dt><dd style="font-size:.75rem">'+escapeHtml(s.id)+'</dd>'+
+          '<dt>County</dt><dd>'+escapeHtml(s.county)+' County</dd>'+
+          '<dt>Observed</dt><dd>'+escapeHtml(s.observed_at||'—')+'</dd>'+
+          '<dt>Submitted</dt><dd>'+escapeHtml(when)+'</dd>'+
+          '<dt>Notes</dt><dd>'+escapeHtml(s.notes||'—')+'</dd>'+
+          '</dl>'+
+          '<div class="cta-row" style="justify-content:flex-start">'+
+          '<button class="btn btn-primary" data-act="approve">Approve ✓</button>'+
+          '<button class="btn btn-ghost" data-act="reject">Reject ✕</button>'+
+          '</div></div></div>';
+        card.querySelector('[data-act="approve"]').onclick=function(){ review(s.id,'approved'); };
+        card.querySelector('[data-act="reject"]').onclick=function(){
+          if(confirm('Reject this submission?')) review(s.id,'rejected');
+        };
+        q.appendChild(card);
+      });
+    });
+}
+
+function init(){
+  if(!TS.configured()){
+    setStatus('The upload pipeline is being connected — the review queue is unavailable until the backend is live.');
+    return;
+  }
+  sb=TS.client();
+  setStatus('Backend connected.');
+  sb.auth.getSession().then(function(s){
+    authed=!!(s.data&&s.data.session);
+    if(authed){
+      $('signinCard').classList.add('hidden');
+      $('queueCard').classList.remove('hidden');
+      loadQueue();
+    }else{
+      $('signinCard').classList.remove('hidden');
+      $('queueCard').classList.add('hidden');
+    }
+  });
+}
+
+$('sendLink').onclick=function(){
+  var email=$('email').value.trim();
+  if(!email||email.indexOf('@')<0){ $('signinMsg').textContent='Please enter a valid email address.'; return; }
+  $('signinMsg').textContent='Sending…';
+  sb.auth.signInWithOtp({email:email, options:{emailRedirectTo:window.location.href}}).then(function(res){
+    $('signinMsg').textContent=res.error?('Error: '+res.error.message):'Magic link sent — check your inbox (and spam), then come back here.';
+  });
+};
+$('refresh').onclick=loadQueue;
+$('signout').onclick=function(){ if(sb) sb.auth.signOut().then(function(){ location.reload(); }); };
+
+init();
+</script>
+</body>
+</html>
