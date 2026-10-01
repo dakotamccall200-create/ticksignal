@@ -217,26 +217,31 @@ $('finish').onclick=function(){
   var county=$('county').value, observed=$('observed').value||null, notes=$('notes').value.trim()||null;
   $('finish').disabled=true; $('submitNote').textContent='Uploading photo…';
   var path='web/'+(crypto.randomUUID?crypto.randomUUID():'ts-'+Date.now()+'-'+Math.floor(Math.random()*1e6))+'.jpg';
+  var ref='TS-'+path.split('/')[1].replace(/\.jpg$/,'').slice(0,8).toUpperCase();
   sb.storage.from('sighting-photos').upload(path,photoBlob,{contentType:'image/jpeg'})
     .then(function(up){
       if(up.error) throw up.error;
       var pub=sb.storage.from('sighting-photos').getPublicUrl(path);
+      // NOTE: no .select() on this insert. The anon SELECT policy only
+      // covers approved rows, so INSERT...RETURNING would be rejected by
+      // RLS for a pending row. The client-generated ref above is shown
+      // as the submission ID instead.
       return sb.from('sightings').insert({
         photo_url: pub.data.publicUrl, county: county, state: 'MI',
         observed_at: observed, notes: notes,
         ai_prediction: null, status: 'pending', source: 'web'
-      }).select('id').single();
+      });
     })
     .then(function(ins){
       if(ins.error) throw ins.error;
-      $('r-id').textContent=ins.data.id;
+      $('r-id').textContent=ref;
       $('r-loc').textContent=county+' County (coarse — precise location never collected)';
       ['step1','step2','step3'].forEach(function(s){ $(s).classList.add('hidden'); });
       $('resultCard').classList.remove('hidden');
       window.scrollTo(0,0);
     })
     .catch(function(err){
-      $('submitNote').textContent='Upload failed: '+(err&&err.message?err.message:'unknown error')+'. Nothing was stored — please try again.';
+      $('submitNote').textContent='Submission failed: '+(err&&err.message?err.message:'unknown error')+'. If your photo uploaded but the record did not save, please try again.';
       $('finish').disabled=false;
     });
 };
