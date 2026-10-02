@@ -13,5 +13,5 @@
    `service_role` key must NEVER be put in this file or any client code. */
 window.TICKSIGNAL_CONFIG = {
   supabaseUrl: "https://dxkdpysvpicfjpawtyoo.supabase.co",
-  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4a2RweXN2cGljZmpwYXd0eW9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODYxMTksImV4cCI6MjEwNjQ2MjExOX0.KkqZvZMU3pSX21MwPjEfQQ6CKtzwS37ZfBJbTC2qOY4"
+  supabaseAnonKey: "sb_publishable_psEmA0OBkpvAA2dOWHVbnA_4zi3txNy" // new-format publishable key (2026-10-02 key rotation; replaces legacy anon JWT)
 };
