@@ -43,7 +43,7 @@
 <main>
   <section class="hero">
     <h1>Is this tick <span class="q">dangerous?</span></h1>
-    <p class="lede">Snap a phone photo of the tick or mosquito. Our AI suggests the species in seconds, a human expert confirms it, and the sighting joins a public Michigan risk map. Every correction makes the AI smarter — and we publish the accuracy numbers, misses included.</p>
+    <p class="lede">Snap a phone photo of the tick or mosquito. <strong>In the full pilot:</strong> our AI suggests the species in seconds, a human expert confirms it, and the sighting joins a public Michigan risk map. Every correction makes the AI smarter — and we publish the accuracy numbers, misses included. <span class="badge demo">ROADMAP</span> <small>The classifier is trained and benchmarked (69.6% top-1 / 89.3% top-3 on 56 real photos) but isn't live on the site yet — see <a href="#honest-status">Honest status</a>.</small></p>
     <div class="cta-row">
       <a class="btn btn-primary" href="submit.html">📸 Submit a photo</a>
       <a class="btn btn-ghost" href="map.html">View the risk map</a>
@@ -70,7 +70,8 @@
   </section>
 
   <section class="card">
-    <h2>How it works</h2>
+    <h2>How it will work <span class="badge demo">ROADMAP</span></h2>
+    <p><small>This is the full-pilot flow we're building toward. The AI classifier is trained and benchmarked but not live on the site yet — see <a href="#honest-status">Honest status</a> below.</small></p>
     <div class="step"><div class="n">1</div><div><strong>You photograph it.</strong> One phone photo, three taps — photo, location, done. EXIF data is stripped on intake and your location is coarsened to county before anything is stored.</div></div>
     <div class="step"><div class="n">2</div><div><strong>The AI suggests a species.</strong> A top-3 guess with confidence in seconds. It's a suggestion, not a diagnosis — never medical advice.</div></div>
     <div class="step"><div class="n">3</div><div><strong>A human expert confirms or corrects.</strong> Volunteer entomologists review the queue. Their corrections become training data.</div></div>
@@ -89,7 +90,7 @@
     </section>
   </div>
 
-  <section class="card">
+  <section class="card" id="honest-status">
     <h3>Honest status</h3>
     <p>TickSignal is in <strong>pilot</strong>: the site is live, but there is no live AI classifier yet and no submission backend — the demo result and local-only storage are labeled where they appear. No money is being collected yet. Every figure is labeled <span class="badge sample">SAMPLE</span>, <span class="badge baseline">BASELINE</span>, or <span class="badge demo">DEMO</span> so you always know what you're looking at. See the <a href="faq.html#roadmap">public roadmap</a> for what launch still needs.</p>
   </section>
