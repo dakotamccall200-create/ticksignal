@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Unsubscribe — TickSignal alerts</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — TickSignal alert preferences.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/><path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="map.html">Map</a>
+    <a href="alerts.html">Alerts</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Unsubscribe</h1>
+  <section class="card">
+    <p id="msg" class="hint" role="status">Working…</p>
+    <p><a href="alerts.html">Re-subscribe or manage county alerts →</a></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/data.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/supabase-client.js"></script>
+<script>
+(function(){
+  var msg = document.getElementById('msg');
+  var token = null;
+  try { token = new URLSearchParams(window.location.search).get('token'); } catch(e){}
+  if(!token){
+    msg.textContent = 'This unsubscribe link is missing its token. If you want out of all alerts, just delete the emails — or sign up again at the alerts page and unsubscribe from there.';
+    return;
+  }
+  if(!TS.configured()){ msg.textContent = 'Unsubscribe is unavailable right now — please try again later.'; return; }
+  TS.client().rpc('unsubscribe_alerts', { p_token: token })
+    .then(function(res){
+      if(res.error){ msg.textContent = 'Something went wrong — please try again later.'; return; }
+      if(res.data === true){
+        msg.textContent = "Done — you're unsubscribed from these county alerts. No more emails. (This link was single-use for that subscription.)";
+      } else {
+        msg.textContent = 'This link already did its job, or the subscription was already off — you will not receive further alerts from it.';
+      }
+    })
+    .catch(function(){ msg.textContent = 'Something went wrong — please try again later.'; });
+})();
+</script>
+</body>
+</html>

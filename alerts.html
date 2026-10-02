@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free sighting alerts — TickSignal</title>
+<meta name="description" content="Free weekly email: how many new tick/mosquito sightings were confirmed in your Michigan county. Sighting counts only — never medical advice.">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="demo-banner">PILOT — TickSignal just launched. Alerts are free while in pilot; you'll get an email only in weeks your county has new confirmed sightings.</div>
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <svg width="38" height="38" viewBox="0 0 36 36" aria-hidden="true">
+      <circle cx="18" cy="18" r="16.5" fill="none" stroke="#7fd069" stroke-width="2.5"/>
+      <ellipse cx="13" cy="18" rx="4.2" ry="5.5" fill="#7fd069"/>
+      <g stroke="#7fd069" stroke-width="1.6" stroke-linecap="round">
+        <path d="M9.5 14 L6 11.5"/><path d="M9.5 18 L5.5 18"/><path d="M9.5 22 L6 24.5"/>
+        <path d="M16.5 14 L20 11.5"/><path d="M16.8 18 L21 18"/><path d="M16.5 22 L20 24.5"/>
+      </g>
+      <g fill="none" stroke="#ffc53d" stroke-width="2" stroke-linecap="round">
+        <path d="M23 13.5 a6.5 6.5 0 0 1 0 9"/><path d="M26 11 a10 10 0 0 1 0 14"/>
+      </g>
+    </svg>
+    <span><span class="brand-name">Tick<span>Signal</span></span><span class="brand-sub">public AI research · Michigan</span></span>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit</a>
+    <a href="map.html">Map</a>
+    <a href="alerts.html" aria-current="page">Alerts</a>
+    <a href="dashboard.html">AI Dashboard</a>
+    <a href="learn.html">Learn</a>
+    <a href="faq.html">FAQ</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Free county sighting alerts</h1>
+  <p class="lede">One email a week — <strong>only</strong> in weeks your county has new expert-confirmed tick or mosquito sightings. No spam, no empty "nothing happened" emails.</p>
+
+  <section class="card">
+    <h3>What you'll get</h3>
+    <ul>
+      <li><strong>Sighting counts only:</strong> "4 new confirmed sightings in Barry County this week," with a species breakdown and a link to the public map.</li>
+      <li><strong>Never medical advice.</strong> These emails do not assess your personal risk, diagnose anything, or recommend treatment. Bitten? See a clinician — <a href="https://www.cdc.gov/ticks/" rel="noopener">CDC</a> · <a href="https://www.michigan.gov/mdhhs" rel="noopener">Michigan DHHS</a>.</li>
+      <li><strong>County-level only.</strong> We never collect or share addresses, GPS, or names. Your email is used for these alerts and nothing else.</li>
+      <li><strong>Free while in pilot.</strong> Unsubscribe anytime with one click — every email carries the link.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h3>Sign up</h3>
+    <form id="alertForm">
+      <label for="county">County</label>
+      <select id="county" required>
+        <option value="">— choose a county —</option>
+      </select>
+      <label for="email">Email</label>
+      <input id="email" type="email" required placeholder="you@example.com" autocomplete="email">
+      <label class="consent"><input type="checkbox" id="consent" required style="width:auto">
+        I want free weekly <strong>sighting-count alerts</strong> for the county above. I understand these are counts of confirmed sightings only — not medical advice — and I can unsubscribe anytime with one click.</label>
+      <button class="btn" type="submit" id="go">Sign me up — free</button>
+      <p class="hint" id="msg" role="status"></p>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>How it works</h3>
+    <ol>
+      <li>You pick a county. We store your email + county — nothing else.</li>
+      <li>Each week we count newly confirmed sightings per county.</li>
+      <li>If your county has new ones, you get one email. If not, silence.</li>
+    </ol>
+    <p class="hint">PILOT honesty: the alert system is new and the sighting database is still growing, so early weeks may be quiet. That's real data, not a bug.</p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>TickSignal is a public citizen-science pilot by Dakota McCall, Hastings, MI. <strong>Not medical advice.</strong></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/data.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/supabase-client.js"></script>
+<script>
+/* All 83 Michigan counties — values match the sightings table convention (no "County" suffix). */
+var MI_COUNTIES = ["Alcona","Alger","Allegan","Alpena","Antrim","Arenac","Baraga","Barry","Bay","Benzie","Berrien","Branch","Calhoun","Cass","Charlevoix","Cheboygan","Chippewa","Clare","Clinton","Crawford","Delta","Dickinson","Eaton","Emmet","Genesee","Gladwin","Gogebic","Grand Traverse","Gratiot","Hillsdale","Houghton","Huron","Ingham","Ionia","Iosco","Iron","Isabella","Jackson","Kalamazoo","Kalkaska","Kent","Keweenaw","Lake","Lapeer","Leelanau","Lenawee","Livingston","Luce","Mackinac","Macomb","Manistee","Marquette","Mason","Mecosta","Menominee","Midland","Missaukee","Monroe","Montcalm","Montmorency","Muskegon","Newaygo","Oakland","Oceana","Ogemaw","Ontonagon","Osceola","Oscoda","Otsego","Ottawa","Presque Isle","Roscommon","Saginaw","Sanilac","Schoolcraft","Shiawassee","St. Clair","St. Joseph","Tuscola","Van Buren","Washtenaw","Wayne","Wexford"];
+
+(function(){
+  var sel = document.getElementById('county');
+  MI_COUNTIES.forEach(function(c){
+    var o = document.createElement('option');
+    o.value = c; o.textContent = c + ' County';
+    sel.appendChild(o);
+  });
+
+  var msg = document.getElementById('msg');
+  function say(t, ok){ msg.textContent = t; msg.style.color = ok ? '#7fd069' : '#ff9d9d'; }
+
+  document.getElementById('alertForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!TS.configured()){ say('Alert signup is unavailable right now — please try again later.'); return; }
+    var county = sel.value;
+    var email = document.getElementById('email').value.trim().toLowerCase();
+    if(!county){ say('Please choose a county.'); return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ say('Please enter a valid email address.'); return; }
+    if(!document.getElementById('consent').checked){ say('Please check the consent box.'); return; }
+    var btn = document.getElementById('go');
+    btn.disabled = true; say('Signing you up…');
+    TS.client().from('subscribers').insert({ email: email, county: county })
+      .then(function(res){
+        if(res.error){
+          if(res.error.code === '23505'){
+            say('That email is already signed up for ' + county + ' County alerts. No duplicate created.');
+          } else {
+            say('Signup failed: ' + res.error.message + '. Please try again.');
+          }
+          btn.disabled = false; return;
+        }
+        say("You're in! You'll get an email only in weeks " + county + " County has new confirmed sightings. Unsubscribe anytime.", true);
+        document.getElementById('alertForm').reset();
+        btn.disabled = false;
+      })
+      .catch(function(err){ say('Signup failed — please try again.'); btn.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
